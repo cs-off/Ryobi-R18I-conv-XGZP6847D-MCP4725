@@ -19,19 +19,19 @@ float P_V_Ryobi, Round_P_V_Ryobi;  //наряжение
 float ADJ = 0.020;
 Adafruit_MCP4725 MCP4725;
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
   MCP4725.begin(adrMCP4725);  // Default I2C Address of MCP4725 breakout board (sparkfun)
 }
 
-void loop() {
-  mysensor.readSensor(tC, P_kPa_IN);    // read the temperature (in °Celsius), and the pressure (in Pa)
-  constrain(P_kPa_IN, 0, P_kPa_max);    //ограничение давления
-  Inv_P_kPa_IN = P_kPa_max - P_kPa_IN;  //инверсия давления для работы PCB Ryobi
-
+void loop() 
+{
+   mysensor.readSensor(tC, P_kPa_IN);    // read the temperature (in °Celsius), and the pressure (in Pa)
+   constrain(P_kPa_IN, 0, P_kPa_max);    //ограничение давления
+   Inv_P_kPa_IN = P_kPa_max - P_kPa_IN;  //инверсия давления для работы PCB Ryobi
 
   //Проверка формулы рассчета напряжения и датчика
-   /*
   P_V_Ryobi = (P_kPa_IN * VPCB_max) / P_kPa_max;  //перевод в вольты
   Serial.print(P_V_Ryobi);
   Serial.print(" vin ");
@@ -46,21 +46,18 @@ void loop() {
   Serial.print(" KPA  ");
   Serial.println();
   float ipvolt = (Inv_P_kPa_IN * VPCB_max) / P_kPa_max;
-  */
+  
+   P_V_Ryobi = ((Inv_P_kPa_IN * 422 )/ P_kPa_max);  //перевод в уровни аналогового сигнала ращрядностью 12 бит
+   // Round_P_V_Ryobi = round(P_V_Ryobi);
+   Round_P_V_Ryobi = P_V_Ryobi;
+   constrain(P_V_Ryobi, 0, IP_VPCB_max);        //ограничение уровня аналогового сигнала для PCB Ryobi
+   MCP4725.setVoltage(Round_P_V_Ryobi, false);  // запись уровня в MCP4725
 
-
-  P_V_Ryobi = ((Inv_P_kPa_IN * 422 )/ P_kPa_max);  //перевод в уровни аналогового сигнала ращрядностью 12 бит
- // Round_P_V_Ryobi = round(P_V_Ryobi);
- Round_P_V_Ryobi = P_V_Ryobi;
-  constrain(P_V_Ryobi, 0, IP_VPCB_max);        //ограничение уровня аналогового сигнала для PCB Ryobi
-  MCP4725.setVoltage(Round_P_V_Ryobi, false);  // запись уровня в MCP4725
-
-
-   /*
   //Проверка напряжения c выхода MCP4725 путем подклчюения его к аналоговому входу и сравнения полученных напряжений
   unsigned int adcValueRead = analogRead(A1);       //считываем аналоговое напряжение с контакта A1 0-1024 с аналогового входа
   float voltageRead = (adcValueRead * 5.0) / 1024;  // формула для расчета значения напряжения (A1)
   P_V_Ryobi = (P_kPa_IN * 366) / P_kPa_max;         //перевод в уровни аналогового сигнала ращрядностью 12 бит
+   
   Serial.print("Analog_ForMCP: ");
   Serial.print(P_V_Ryobi);
 
@@ -77,6 +74,5 @@ void loop() {
   Serial.println(ipvolt - voltageRead, 3);
   */
 
-
- // delay(1500);
+delay(1500);
 }
