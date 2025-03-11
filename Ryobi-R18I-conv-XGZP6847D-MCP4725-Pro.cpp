@@ -19,17 +19,18 @@ float P_V_Ryobi, Round_P_V_Ryobi;  //наряжение
 float ADJ = 0.020;
 Adafruit_MCP4725 MCP4725;
 
-void setup() {
-  Serial.begin(9600);
+void setup() 
+{
   MCP4725.begin(adrMCP4725);  // Default I2C Address of MCP4725 breakout board (sparkfun)
 }
 
-void loop() {
-  mysensor.readSensor(tC, P_kPa_IN);    // read the temperature (in °Celsius), and the pressure (in Pa)
-  constrain(P_kPa_IN, 0, P_kPa_max);    //ограничение давления
-  Inv_P_kPa_IN = P_kPa_max - P_kPa_IN;  //инверсия давления для работы PCB Ryobi
-  P_V_Ryobi = ((Inv_P_kPa_IN * 422 )/ P_kPa_max);  //перевод в уровни аналогового сигнала ращрядностью 12 бит
- Round_P_V_Ryobi = P_V_Ryobi;
-  constrain(P_V_Ryobi, 0, IP_VPCB_max);        //ограничение уровня аналогового сигнала для PCB Ryobi
-  MCP4725.setVoltage(Round_P_V_Ryobi, false);  // запись уровня в MCP4725
+void loop() 
+{
+   mysensor.readSensor(tC, P_kPa_IN);    // read the temperature (in °Celsius), and the pressure (in Pa)
+   constrain(P_kPa_IN, 0, P_kPa_max);    //ограничение давления
+   Inv_P_kPa_IN = P_kPa_max - P_kPa_IN;  //инверсия давления для работы PCB Ryobi
+   P_V_Ryobi = ((Inv_P_kPa_IN * 422 )/ P_kPa_max);  //перевод в уровни аналогового сигнала разрядностью 12 бит
+   Round_P_V_Ryobi = P_V_Ryobi;
+   constrain(P_V_Ryobi, 0, IP_VPCB_max);        //ограничение уровня аналогового сигнала для PCB Ryobi
+   MCP4725.setVoltage(Round_P_V_Ryobi, false);  // запись уровня в MCP4725
 }
